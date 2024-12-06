@@ -1,0 +1,56 @@
+#include <bits/stdc++.h>
+using namespace std;
+map<string, int> menu_comb;
+vector<pair<string, int>> candidate_menu;
+
+bool menucomp (pair<string, int> a, pair<string, int> b){
+    return a.second > b.second;
+}
+
+//dfs(orders[i], menu, 0, 0);
+void dfs(string& order, string menu, int index, int r){
+    if (menu.length() == r) {
+        menu_comb[menu]++;
+    }
+    else {
+        if(order.size() < menu.size()) return;
+        for (int i = index; i < order.size(); i++) {
+                menu[r] = order[i];
+                dfs(order, menu, i + 1, r + 1);
+        }
+    }
+}
+
+vector<string> solution(vector<string> orders, vector<int> course) {
+    vector<string> answer;
+    
+    for(int i = 0; i < orders.size(); i++){
+        sort(orders[i].begin(), orders[i].end());
+        for(int j = 0; j < course.size(); j++){
+            string menu = "";
+            menu.resize(course[j]);
+            dfs(orders[i], menu, 0, 0);
+        }
+    }
+    for(auto ord : menu_comb){
+        if(ord.second > 1) candidate_menu.push_back(ord);
+    }
+    sort(candidate_menu.begin(), candidate_menu.end(), menucomp);
+    
+    for(int menu_size : course){
+        int max = 0;
+        for(auto menu_info : candidate_menu){
+            if(menu_info.first.length() != menu_size) continue;
+            if(max == 0 || max == menu_info.second){
+                answer.push_back(menu_info.first);
+                max = menu_info.second;
+            } else if(menu_info.second < max) break
+        }
+    }
+    //for(auto ord : candidate_menu){ // 확인용
+    //    cout << "menu : " << ord.first << ", number : " << ord.second << "\n";
+    //}
+    
+    sort(answer.begin(), answer.end());
+    return answer;
+}
